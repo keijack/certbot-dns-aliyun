@@ -39,7 +39,9 @@ virtualenv --no-site-packages --python "python2.7" "/opt/eff.org/certbot/venv"
 /opt/eff.org/certbot/venv/bin/python2.7 setup.py install
 ```
 
-## Credentials File
+## Obtain Certificates
+
+### Credentials in a File
 
 ```ini
 dns_aliyun_access_key = 12345678
@@ -50,8 +52,6 @@ dns_aliyun_access_key_secret = 1234567890abcdef1234567890abcdef
 chmod 600 /path/to/credentials.ini
 ```
 
-## Obtain Certificates
-
 ```bash
 certbot certonly \
     --authenticator=dns-aliyun \
@@ -59,6 +59,39 @@ certbot certonly \
     -d "*.example.com,example.com"
 ```
 
+### Credentials in Environment Variables
+
+```bash
+export DNS_ALIYUN_ACCESS_KEY=12345678
+export DNS_ALIYUN_ACCESS_KEY_SECRET=1234567890abcdef1234567890abcdef
+
+certbot certonly \
+    --authenticator=dns-aliyun \
+    -d "*.example.com,example.com"
+```
+
 ### Using Docker
 
-Please refer to [scripts](./scripts/README.md)
+```bash
+docker run -it --rm \
+    -e "DNS_ALIYUN_ACCESS_KEY=12345678" \
+    -e "DNS_ALIYUN_ACCESS_KEY_SECRET=1234567890abcdef1234567890abcdef" \
+    -v $PWD/letsencrypt/:/etc/letsencrypt/ \
+    keijack/certbot-dns-aliyun certonly \
+    -a dns-aliyun \
+    --agree-tos \
+    --non-interactive \
+    -m "your_email@example.com" \
+    -i nginx \
+    -d "*.example.com,example.com"
+```
+
+```bash
+docker run -it --rm \
+    -e "DNS_ALIYUN_ACCESS_KEY=12345678" \
+    -e "DNS_ALIYUN_ACCESS_KEY_SECRET=1234567890abcdef1234567890abcdef" \
+    -v $PWD/letsencrypt/:/etc/letsencrypt/ \
+    keijack/certbot-dns-aliyun renew -q
+```
+
+Please refer to [scripts](./scripts/README.md) for ferther imformation.

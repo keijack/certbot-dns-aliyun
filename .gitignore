@@ -4,7 +4,10 @@
 *.ini
 build/
 dist/
+venv/
 certbot_dns_aliyun.egg-info/
 *.snap
+letsencrypt/
+debug/
 
 scripts/

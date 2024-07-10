@@ -1,5 +1,6 @@
 """DNS Authenticator for Aliyun DNS."""
 import logging
+import os
 
 from certbot.plugins import dns_common
 
@@ -11,6 +12,7 @@ except:
     from alidns import AliDNSClient
 
 logger = logging.getLogger(__name__)
+
 
 class Authenticator(dns_common.DNSAuthenticator):
     """DNS Authenticator for Aliyun DNS
@@ -24,7 +26,9 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     def __init__(self, *args, **kwargs):
         super(Authenticator, self).__init__(*args, **kwargs)
-        self.credentials = None
+
+        self.access_key = None
+        self.access_key_secret = None
 
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
@@ -36,7 +40,11 @@ class Authenticator(dns_common.DNSAuthenticator):
                'the Aliyun DNS API.'
 
     def _setup_credentials(self):
-        self.credentials = self._configure_credentials(
+        self.access_key = os.environ.get('DNS_ALIYUN_ACCESS_KEY')
+        self.access_key_secret = os.environ.get('DNS_ALIYUN_ACCESS_KEY_SECRET')
+        if self.access_key and self.access_key_secret:
+            return
+        credentials = self._configure_credentials(
             'credentials',
             'Aliyun DNS credentials INI file',
             {
@@ -44,6 +52,8 @@ class Authenticator(dns_common.DNSAuthenticator):
                 'access-key-secret': 'AccessKeySecret for Aliyun DNS, obtained from Aliyun RAM'
             }
         )
+        self.access_key = credentials.conf('access-key')
+        self.access_key_secret = credentials.conf('access-key-secret')
 
     def _perform(self, domain, validation_name, validation):
         self._get_alidns_client().add_txt_record(domain, validation_name, validation)
@@ -54,8 +64,7 @@ class Authenticator(dns_common.DNSAuthenticator):
     def _get_alidns_client(self):
         if not self._alidns_client:
             self._alidns_client = AliDNSClient(
-                self.credentials.conf('access-key'),
-                self.credentials.conf('access-key-secret'),
+                self.access_key,
+                self.access_key_secret,
                 self.ttl)
         return self._alidns_client
-
