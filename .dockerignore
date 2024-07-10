@@ -19,4 +19,6 @@ Dockerfile
 .gitignore
 .gitattributes
 .gitpod.yml
+readthedocs.org.requirements.txt
+local-oldest-requirements.txt
 snap-constraints.txt
